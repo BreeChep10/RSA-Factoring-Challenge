@@ -24,9 +24,5 @@ try:
 			p, q = factorize(n)
 			if p is not None:
 				print(f"{n}={p}*{q}")
-except FileNotFoundError:
-	print(f"File '{input_file}' not found.")
-except ValueError:
-	print("Invalid input in the file. Please ensure all lines contain valid natural numbers greater than 1.")
-except Exception as e:
-	print(f"An error occurred: {e}")
+except:
+    pass
