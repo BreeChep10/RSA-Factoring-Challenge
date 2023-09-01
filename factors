@@ -1,0 +1,32 @@
+#!/usr/bin/python3
+"""factorize given set of numbers in a file to product of two small numbers"""
+import sys
+import math
+
+
+"""finding two small numbers that multiply to give a number"""
+def factorize(n):
+	for i in range(2, int(math.sqrt(n)) + 1):
+		if n% i == 0:
+			return i, n // i
+	return None, none
+
+if len(sys.argv) != 2:
+	print("Usage: factors <file>")
+	sys.exit(1)
+
+input_file = sys.argv[1]
+
+try:
+	with open(input_file, 'r') as file:
+		for line in file:
+			n = int(line.strip())
+			p, q = factorize(n)
+			if p is not None:
+				print(f"{n}={p}*{q}")
+except FileNotFoundError:
+	print(f"File '{input_file}' not found.")
+except ValueError:
+	print("Invalid input in the file. Please ensure all lines contain valid natural numbers greater than 1.")
+except Exception as e:
+	print(f"An error occurred: {e}")
