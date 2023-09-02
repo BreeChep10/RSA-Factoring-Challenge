@@ -1,34 +1,46 @@
 #!/usr/bin/env bash
 
-factorize() {
-    num=$1
-    for (( divisor = 2; divisor * divisor <= num; divisor++ )); do
-        while (( num % divisor == 0 )); do
-            factors+=("$divisor")
-            num=$(( num / divisor ))
-        done
+# Function to check if a number is prime
+is_prime() {
+    local num="$1"
+    if [ "$num" -le 1 ]; then
+        return 1
+    fi
+    for ((i = 2; i * i <= num; i++)); do
+        if [ "$((num % i))" -eq 0 ]; then
+            return 1
+        fi
+    done
+    return 0
+}
+
+organize() {
+    local n="$1"
+    if ! is_prime "$n"; then
+        echo "The number is not prime: $n"
+        return
+    fi
+
+    # Find the two prime factors
+    for ((p = 2; p <= n / 2; p++)); do
+        if is_prime "$p" && [ "$((n % p))" -eq 0 ]; then
+            q="$((n / p))"
+            if is_prime "$q"; then
+                echo "$n=$p*$q"
+                return
+            fi
+        fi
     done
 
-    if (( num > 1 )); then
-        factors+=("$num")
-    fi
+    # If no prime factors found
+    echo "Could not factorize the number: $n"
 }
 
 if [ $# -ne 1 ]; then
-    echo 'Usage: rsa <file>'
+    echo 'Usage: RSA <file>'
     exit 1
 fi
 
-while read -r line; do
-    factors=()
-    factorize "$line"
-    n=${factors[0]}
-    m=${factors[1]}
-    
-    if [ -z "$m" ]; then
-        echo "$line is prime."
-    else
-        echo "$line=$n*$m"
-    fi
+while read file_line; do
+    organize "$file_line"
 done < "$1"
-
