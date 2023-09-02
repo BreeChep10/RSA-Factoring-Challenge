@@ -1,46 +1,40 @@
 #!/usr/bin/env bash
 
-# Function to check if a number is prime
-is_prime() {
-    local num="$1"
-    if [ "$num" -le 1 ]; then
-        return 1
-    fi
-    for ((i = 2; i * i <= num; i++)); do
-        if [ "$((num % i))" -eq 0 ]; then
-            return 1
-        fi
-    done
-    return 0
-}
 
 organize() {
-    local n="$1"
-    if ! is_prime "$n"; then
-        echo "The number is not prime: $n"
-        return
-    fi
-
-    # Find the two prime factors
-    for ((p = 2; p <= n / 2; p++)); do
-        if is_prime "$p" && [ "$((n % p))" -eq 0 ]; then
-            q="$((n / p))"
-            if is_prime "$q"; then
-                echo "$n=$p*$q"
-                return
-            fi
-        fi
-    done
-
-    # If no prime factors found
-    echo "Could not factorize the number: $n"
+	if [ $# -ne 3 ]; then
+		local array=("$@")
+		local product=1
+		local count=0
+		for a in "${array[@]}"; do
+			if [ $count -gt 1 ]; then
+				product=$(echo "$product * $a" | bc)
+			fi
+			count=$((count + 1))
+		done
+	else
+		product="$3"
+	fi
+	local first_num="$2"
+	local num=$(echo "$1" | tr ':' '=')
+	local comparison=$(echo "if ($product > $first_num) 1 else 0" | bc)
+	if ((comparison == 1)); then
+		local swap="$first_num"
+		first_num="$product"
+		product="$swap"
+	fi
+	echo "$num$first_num*$product"
 }
 
-if [ $# -ne 1 ]; then
-    echo 'Usage: RSA <file>'
-    exit 1
-fi
 
-while read file_line; do
-    organize "$file_line"
-done < "$1"
+
+if [ $# -ne 1 ]; then
+	echo 'usage: RSA <file>'
+	exit 1
+
+else
+	while read file_line; do
+		factors=$(factor "$file_line")
+		organize $factors
+	done < "$1"
+fi
