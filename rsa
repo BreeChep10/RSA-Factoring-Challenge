@@ -3,15 +3,7 @@
 
 organize() {
 	if [ $# -ne 3 ]; then
-		local array=("$@")
-		local product=1
-		local count=0
-		for a in "${array[@]}"; do
-			if [ $count -gt 1 ]; then
-				product=$(echo "$product * $a" | bc)
-			fi
-			count=$((count + 1))
-		done
+		return
 	else
 		product="$3"
 	fi
