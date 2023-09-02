@@ -1,42 +1,40 @@
-#!/usr/bin/env python3
+#!/usr/bin/env bash
 
-import sys
-import math
 
-# Function to factorize a number n into p and q
-def factorize(n):
-    if n < 4:
-        return None, None  # Numbers less than 4 are not factorizable as per the requirements
+organize() {
+	if [ $# -ne 3 ]; then
+		local array=("$@")
+		local product=1
+		local count=0
+		for a in "${array[@]}"; do
+			if [ $count -gt 1 ]; then
+				product=$(echo "$product * $a" | bc)
+			fi
+			count=$((count + 1))
+		done
+	else
+		product="$3"
+	fi
+	local first_num="$2"
+	local num=$(echo "$1" | tr ':' '=')
+	local comparison=$(echo "if ($product > $first_num) 1 else 0" | bc)
+	if ((comparison == 1)); then
+		local swap="$first_num"
+		first_num="$product"
+		product="$swap"
+	fi
+	echo "$num$first_num*$product"
+}
 
-    p = 2
-    while p <= int(math.sqrt(n)):
-        if n % p == 0:
-            q = n // p
-            return p, q
-        p += 1
 
-    return None, None  # If no factors are found
 
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: factors <file>")
-        sys.exit(1)
+if [ $# -ne 1 ]; then
+	echo 'usage: RSA <file>'
+	exit 1
 
-    input_file = sys.argv[1]
-
-    try:
-        with open(input_file, 'r') as file:
-            for line in file:
-                n = int(line.strip())
-                p, q = factorize(n)
-                if p is not None:
-                    print(f"{n}={p}*{q}")
-                else:
-                    print(f"{n} is prime.")
-    except FileNotFoundError:
-        print(f"File '{input_file}' not found.")
-    except ValueError:
-        print("Invalid input in the file. Please ensure all lines contain valid natural numbers greater than 1.")
-
-if __name__ == '__main__':
-    main()
+else
+	while read file_line; do
+		factors=$(factor "$file_line")
+		organize $factors
+	done < "$1"
+fi
